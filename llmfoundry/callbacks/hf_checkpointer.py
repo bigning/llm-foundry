@@ -635,6 +635,7 @@ class HuggingFaceCheckpointer(Callback):
                         },
                     )
                     process.start()
+                    log.debug(f"bigning debug pid: {process.pid}")
                     self.child_processes.append(process)
 
                     # Save the temporary directory to be cleaned up later.
