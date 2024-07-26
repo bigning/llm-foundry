@@ -45,6 +45,7 @@ from llmfoundry.models.utils import init_empty_weights
 from llmfoundry.utils.huggingface_hub_utils import \
     edit_files_for_hf_compatibility
 
+from llmfoundry.callbacks.scheduled_gc_callback import gc_cuda
 try:
     import transformer_engine.pytorch as te
     is_te_imported = True
@@ -478,6 +479,7 @@ class HuggingFaceCheckpointer(Callback):
             hook.remove()
 
         new_model_instance = None  # Need this for pyright because variable could be unbound
+        gc_cuda()
 
         if dist.get_global_rank() == 0:
             log.debug('Saving Hugging Face checkpoint in global rank 0')
@@ -560,6 +562,7 @@ class HuggingFaceCheckpointer(Callback):
 
         dist.barrier()
 
+        log.debug(f"bigning debug currrent composer pid: {os.getpid()}")
         if dist.get_global_rank() == 0:
             if self.mlflow_registered_model_name and self._is_last_batch(state):
 
@@ -635,7 +638,7 @@ class HuggingFaceCheckpointer(Callback):
                         },
                     )
                     process.start()
-                    log.debug(f"bigning debug pid: {process.pid}")
+                    log.debug(f"bigning debug model registration pid: {process.pid}")
                     self.child_processes.append(process)
 
                     # Save the temporary directory to be cleaned up later.
