@@ -651,7 +651,6 @@ class HuggingFaceCheckpointer(Callback):
         dist.barrier()
 
         import psutil
-        import os
 
         def get_parent_pid(pid):
             try:
