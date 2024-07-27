@@ -649,3 +649,18 @@ class HuggingFaceCheckpointer(Callback):
                 if use_temp_dir:
                     shutil.rmtree(temp_save_dir)
         dist.barrier()
+
+        import psutil
+        import os
+
+        def get_parent_pid(pid):
+            try:
+                process = psutil.Process(pid)
+                return process.ppid()
+            except psutil.NoSuchProcess:
+                return None
+
+        processes = psutil.process_iter()
+
+        for process in processes:
+            log.debug(f"bigning debug Process ID in foundry: {process.pid}, Name: {process.name()}, parent {get_parent_pid(process.pid)}")
