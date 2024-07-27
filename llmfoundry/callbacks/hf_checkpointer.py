@@ -618,28 +618,6 @@ class HuggingFaceCheckpointer(Callback):
                             os.path.join(local_save_path, license_filename),
                         )
 
-                    # Spawn a new process to register the model.
-                    process = SpawnProcess(
-                        target=_register_model_with_run_id_multiprocess,
-                        kwargs={
-                            'mlflow_logger':
-                                mlflow_logger,
-                            'composer_logging_level':
-                                logging.getLogger('composer').level,
-                            'model_uri':
-                                local_save_path,
-                            'name':
-                                self.mlflow_registered_model_name,
-                            'await_creation_for':
-                                3600,
-                        },
-                    )
-                    process.start()
-                    self.child_processes.append(process)
-
-                    # Save the temporary directory to be cleaned up later.
-                    if use_temp_dir:
-                        self.temp_save_dir = temp_save_dir
             else:
                 # Clean up the temporary directory if we don't need to register to mlflow.
                 if use_temp_dir:
