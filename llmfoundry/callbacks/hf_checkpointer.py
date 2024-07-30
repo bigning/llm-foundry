@@ -183,7 +183,9 @@ def merge_(self, safe_merge: bool = False, adapter_names: Optional[list[str]] = 
                 base_layer.weight.data = orig_weights
             else:
                 delta_weight = self.get_delta_weight(active_adapter)
-                log.debug(f"bigning debug in merge after get delta weights, {base_layer.weight.data.dtype=}")
+                weight_A = self.lora_A[active_adapter].weight
+                weight_B = self.lora_B[active_adapter].weight
+                log.debug(f"bigning debug in merge after get delta weights, {base_layer.weight.data.dtype=}, {self.lora_A[adapter].weight}")
                 if not self.use_dora[active_adapter]:
                     log.debug(f"bigning debug in merge before add delta")
                     base_layer.weight.data += delta_weight
@@ -219,6 +221,46 @@ def merge_(self, safe_merge: bool = False, adapter_names: Optional[list[str]] = 
 
 from peft.tuners.lora.layer import Linear
 Linear.merge = merge_
+
+def get_delta_weight_(self, adapter) -> torch.Tensor:
+    """
+    Compute the delta weight for the given adapter.
+
+    Args:
+        adapter (str):
+            The name of the adapter for which the delta weight should be computed.
+    """
+    print('getting delta')
+    device = self.lora_B[adapter].weight.device
+    dtype = self.lora_B[adapter].weight.dtype
+
+    # In case users wants to merge the adapter weights that are in
+    # float16 while being on CPU, we need to cast the weights to float32, perform the merge and then cast back to
+    # float16 because the `@` and matmul operation in general is not supported in torch + cpu + fp16.
+    cast_to_fp32 = device.type == "cpu" and dtype == torch.float16
+
+    weight_A = self.lora_A[adapter].weight
+    weight_B = self.lora_B[adapter].weight
+
+    if cast_to_fp32:
+        weight_A = weight_A.float()
+        weight_B = weight_B.float()
+    log.debug(f"bigning debug before matmul")
+    mat = weight_B @ weight_A
+    log.debug(f"bigning debug after matmul, {weight_B.shape=}, {weight_B.dtype=}, {weight_A.shape=}, {weight_A.dtype=}")
+    output_tensor = transpose(mat, self.fan_in_fan_out) * self.scaling[adapter]
+    log.debug(f"bigning debug after transpose")
+
+    if cast_to_fp32:
+        output_tensor = output_tensor.to(dtype=dtype)
+
+        # cast back the weights
+        self.lora_A[adapter].weight.data = weight_A.to(dtype)
+        self.lora_B[adapter].weight.data = weight_B.to(dtype)
+
+    print('got delta')
+    return output_tensor
+Linear.get_delta_weight = get_delta_weight_
 
 
 
