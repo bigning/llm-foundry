@@ -596,7 +596,7 @@ class HuggingFaceCheckpointer(Callback):
         if dist.get_global_rank() == 0:
             if self.mlflow_registered_model_name and self._is_last_batch(state):
                 log.info(f"bigning debug before manuall merge and load")
-                new_model_instance = new_model_instance.merge_and_unload()
+                new_model_instance = new_model_instance.merge_and_unload(progressbar=True)
 
 
                 log.info(f"bigning debug before self.transform_model_pre_registration")
