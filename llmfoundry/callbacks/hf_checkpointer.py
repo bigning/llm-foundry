@@ -100,7 +100,7 @@ def _unload_and_optionally_merge_(
             if hasattr(target, "base_layer"):
                 if merge:
                     target.merge(safe_merge=safe_merge, adapter_names=adapter_names)
-                log.debug(f"bigning debug {key=}, after onload layer")
+                log.debug(f"bigning debug {key=}, after merge layer, {type(target)}")
                 self._replace_module(parent, target_name, target.get_base_layer(), target)
                 log.debug(f"bigning debug {key=}, after replace layer")
             elif isinstance(target, ModulesToSaveWrapper):
