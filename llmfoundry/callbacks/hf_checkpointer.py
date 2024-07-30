@@ -58,6 +58,55 @@ __all__ = ['HuggingFaceCheckpointer']
 _LICENSE_FILE_PATTERN = re.compile(r'license(\.[a-z]+|$)', re.IGNORECASE)
 
 
+
+def _unload_and_optionally_merge_(
+    self,
+    merge=True,
+    progressbar: bool = False,
+    safe_merge: bool = False,
+    adapter_names: Optional[list[str]] = None,
+):
+    log.debug(f"bigning debug customized unload and merge")
+    if merge:
+        self._check_merge_allowed()
+    log.debug(f"bigning debug after check")
+
+    key_list = [key for key, _ in self.model.named_modules() if self.prefix not in key]
+    desc = "Unloading " + ("and merging " if merge else "") + "model"
+    for key in tqdm(key_list, disable=not progressbar, desc=desc):
+        try:
+            parent, target, target_name = _get_submodules(self.model, key)
+        except AttributeError:
+            continue
+        log.debug(f"bigning debug {key=}, before onload layer")
+        with onload_layer(target):
+            log.debug(f"bigning debug {key=}, after onload layer")
+            if hasattr(target, "base_layer"):
+                if merge:
+                    target.merge(safe_merge=safe_merge, adapter_names=adapter_names)
+                log.debug(f"bigning debug {key=}, after onload layer")
+                self._replace_module(parent, target_name, target.get_base_layer(), target)
+                log.debug(f"bigning debug {key=}, after replace layer")
+            elif isinstance(target, ModulesToSaveWrapper):
+                # save any additional trainable modules part of `modules_to_save`
+                new_module = target.modules_to_save[target.active_adapter]
+                if hasattr(new_module, "base_layer"):
+                    # check if the module is itself a tuner layer
+                    log.debug(f"bigning debug {key=}, before merge 2")
+                    if merge:
+                        new_module.merge(safe_merge=safe_merge, adapter_names=adapter_names)
+                    log.debug(f"bigning debug {key=}, after merge 2")
+                    new_module = new_module.get_base_layer()
+                    log.debug(f"bigning debug {key=}, after get base layer2")
+                setattr(parent, target_name, new_module)
+
+    return self.model
+
+from peft.tuners.lora.model import LoraModel
+LoraModel._unload_and_optionally_merge = _unload_and_optionally_merge_
+
+
+
 def _maybe_get_license_filename(
     local_dir: str,
     pretrained_model_name: Optional[str] = None,
