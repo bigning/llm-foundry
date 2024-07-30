@@ -185,7 +185,7 @@ def merge_(self, safe_merge: bool = False, adapter_names: Optional[list[str]] = 
                 delta_weight = self.get_delta_weight(active_adapter)
                 weight_A = self.lora_A[active_adapter].weight
                 weight_B = self.lora_B[active_adapter].weight
-                log.debug(f"bigning debug in merge after get delta weights, {base_layer.weight.data.dtype=}, {self.lora_A[adapter].weight}")
+                log.debug(f"bigning debug in merge after get delta weights, {base_layer.weight.data.dtype=}")
                 if not self.use_dora[active_adapter]:
                     log.debug(f"bigning debug in merge before add delta")
                     base_layer.weight.data += delta_weight
@@ -245,6 +245,8 @@ def get_delta_weight_(self, adapter) -> torch.Tensor:
     if cast_to_fp32:
         weight_A = weight_A.float()
         weight_B = weight_B.float()
+    weight_A = weight_A.float()
+    weight_B = weight_B.float()
     log.debug(f"bigning debug before matmul")
     mat = weight_B @ weight_A
     log.debug(f"bigning debug after matmul, {weight_B.shape=}, {weight_B.dtype=}, {weight_A.shape=}, {weight_A.dtype=}")
@@ -259,6 +261,7 @@ def get_delta_weight_(self, adapter) -> torch.Tensor:
         self.lora_B[adapter].weight.data = weight_B.to(dtype)
 
     print('got delta')
+    output_tensor = output_tensor.to(dtype=torch.bfloat16)
     return output_tensor
 Linear.get_delta_weight = get_delta_weight_
 
