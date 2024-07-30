@@ -59,6 +59,22 @@ _LICENSE_FILE_PATTERN = re.compile(r'license(\.[a-z]+|$)', re.IGNORECASE)
 
 
 
+from tqdm import tqdm
+from peft.utils import (
+    TRANSFORMERS_MODELS_TO_LORA_TARGET_MODULES_MAPPING,
+    ModulesToSaveWrapper,
+    _freeze_adapter,
+    _get_submodules,
+    get_peft_model_state_dict,
+    get_quantization_config,
+)
+from peft.tuners.tuners_utils import (
+    BaseTuner,
+    BaseTunerLayer,
+    check_target_module_exists,
+    onload_layer,
+    replicate_layers,
+)
 def _unload_and_optionally_merge_(
     self,
     merge=True,
