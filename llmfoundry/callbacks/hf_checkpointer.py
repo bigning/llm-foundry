@@ -661,5 +661,3 @@ class HuggingFaceCheckpointer(Callback):
 
         processes = psutil.process_iter()
 
-        for process in processes:
-            log.debug(f"bigning debug Process ID in foundry: {process.pid}, Name: {process.name()}, parent {get_parent_pid(process.pid)}")
