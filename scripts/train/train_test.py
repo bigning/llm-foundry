@@ -7,8 +7,7 @@ from composer.utils import dist, get_device
 log = logging.getLogger(__name__)
 from torch.utils.data import DataLoader, Dataset
 
-"""
-def main():
+def before_training():
     log.warning(f'bigning debug init dist')
     dist.initialize_dist(get_device(None), timeout=300)
 
@@ -23,7 +22,6 @@ def main():
 
     log.warning(f"bigning debug start 2nd all reduce on rank {dist.get_global_rank()}")
     torch.distributed.all_reduce(t)
-"""
 
 class SimpleDatasetForAuto(Dataset):
 
@@ -59,6 +57,8 @@ class MyModel(ComposerModel):
         return torch.sum(outputs)
 
 def main():
+    before_training()
+
     model = MyModel()
     dataset = SimpleDatasetForAuto(size=256, feature_size=16)
     dataloader = DataLoader(dataset, sampler=dist.get_sampler(dataset))
