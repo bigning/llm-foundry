@@ -78,8 +78,8 @@ def main():
         device='gpu',
         dist_timeout=60,
     )
-    trainer.fit()
     """
+    trainer.fit()
 
 
 
