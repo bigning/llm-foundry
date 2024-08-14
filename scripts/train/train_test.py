@@ -8,8 +8,6 @@ log = logging.getLogger(__name__)
 from torch.utils.data import DataLoader, Dataset
 
 def before_training():
-    log.warning(f'bigning debug init dist')
-    dist.initialize_dist(get_device(None), timeout=60)
 
     t = torch.tensor([2], device=f'cuda:{dist.get_local_rank()}')
 
@@ -57,14 +55,15 @@ class MyModel(ComposerModel):
         return torch.sum(outputs)
 
 def main():
-    before_training()
+    #before_training()
+    log.warning(f'bigning debug init dist')
+    dist.initialize_dist(get_device(None), timeout=60)
 
     model = MyModel()
     dataset = SimpleDatasetForAuto(size=256, feature_size=16)
     dataloader = DataLoader(dataset, sampler=dist.get_sampler(dataset))
     optimizer = torch.optim.SGD(model.linear.parameters(), lr=0.01)
 
-    """
     trainer = Trainer(
         model=model,
         optimizers=optimizer,
@@ -80,6 +79,7 @@ def main():
     )
     """
     trainer.fit()
+    """
 
 
 
