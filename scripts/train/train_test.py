@@ -76,6 +76,7 @@ def main():
         max_duration='3ba',
         device='gpu',
         dist_timeout=60,
+        python_log_level='debug',
     )
     trainer.fit()
 
