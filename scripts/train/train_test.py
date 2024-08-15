@@ -57,7 +57,8 @@ class MyModel(ComposerModel):
 def main():
     #before_training()
     #log.warning(f'bigning debug init dist')
-    dist.initialize_dist(get_device(None), timeout=60)
+    #dist.initialize_dist(get_device(None), timeout=60)
+    
 
     model = MyModel()
     dataset = SimpleDatasetForAuto(size=256, feature_size=16)
