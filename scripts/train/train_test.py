@@ -8,6 +8,8 @@ log = logging.getLogger(__name__)
 from torch.utils.data import DataLoader, Dataset
 
 def before_training():
+    log.warning(f'bigning debug init dist')
+    dist.initialize_dist(get_device(None), timeout=60)
 
     t = torch.tensor([2], device=f'cuda:{dist.get_local_rank()}')
 
@@ -20,6 +22,10 @@ def before_training():
 
     log.warning(f"bigning debug start 2nd all reduce on rank {dist.get_global_rank()}")
     torch.distributed.all_reduce(t)
+    log.warning(f"bigning debug move t to cpu")
+    a = t.tolist()
+    log.warning(f"bigning debug return")
+
 
 class SimpleDatasetForAuto(Dataset):
 
@@ -55,11 +61,10 @@ class MyModel(ComposerModel):
         return torch.sum(outputs)
 
 def main():
-    #before_training()
-    #log.warning(f'bigning debug init dist')
-    #dist.initialize_dist(get_device(None), timeout=60)
+    before_training()
     
 
+    """
     model = MyModel()
     dataset = SimpleDatasetForAuto(size=256, feature_size=16)
     dataloader = DataLoader(dataset, sampler=dist.get_sampler(dataset))
@@ -80,6 +85,7 @@ def main():
         python_log_level='debug',
     )
     trainer.fit()
+    """
 
 
 
