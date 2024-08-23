@@ -508,6 +508,7 @@ def train(cfg: DictConfig) -> Trainer:
     # Build the Trainer
     log.info('Building trainer...')
     trainer = Trainer(
+        accumulate_train_batch_on_tokens=True,
         run_name=run_name,
         seed=seed,
         model=model,
