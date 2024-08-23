@@ -764,6 +764,7 @@ class MPTModel(MPTPreTrainedModel):
         use_cache: Optional[bool] = None,
         inputs_embeds: Optional[torch.Tensor] = None,
     ) -> BaseModelOutputWithPast:
+        log.debug(f"bigning debug model inputs: {input_ids=}, {attention_mask=}, {sequence_id=}")
         return_dict = (
             return_dict if return_dict is not None else self.config.return_dict
         )
@@ -1344,7 +1345,7 @@ def compute_loss_from_logits(
     else:
         num_tokens = (targets != loss_fn.ignore_index).sum()
         loss = losses.sum() / num_tokens 
-        log.debug(f"bigning debug num tokens: {num_tokens}, {sample_weighing_factor=}")
+        log.debug(f"bigning debug num tokens: {num_tokens}, {sample_weighing_factor=}, {labels=}")
         if sample_weighing_factor is not None:
             if sample_weighing_factor.shape[0] > 1:
                 raise ValueError(
