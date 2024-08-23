@@ -1345,7 +1345,7 @@ def compute_loss_from_logits(
     else:
         num_tokens = (targets != loss_fn.ignore_index).sum()
         loss = losses.sum() / num_tokens 
-        log.debug(f"bigning debug num tokens: {num_tokens}, {sample_weighing_factor=}, {labels=}")
+        log.debug(f"bigning debug num tokens: {num_tokens}, {sample_weighing_factor=}, {loss=}, {labels=}")
         if sample_weighing_factor is not None:
             if sample_weighing_factor.shape[0] > 1:
                 raise ValueError(
