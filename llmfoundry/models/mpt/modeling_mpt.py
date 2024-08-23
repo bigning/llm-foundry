@@ -1340,8 +1340,11 @@ def compute_loss_from_logits(
 
     if torch.all(targets == loss_fn.ignore_index):
         loss = losses.sum()
+        log.debug(f"bigning debug all ignore, loss: {loss}")
     else:
-        loss = losses.sum() / (targets != loss_fn.ignore_index).sum()
+        num_tokens = (targets != loss_fn.ignore_index).sum()
+        loss = losses.sum() / num_tokens 
+        log.debug(f"bigning debug num tokens: {num_tokens}, {sample_weighing_factor=}")
         if sample_weighing_factor is not None:
             if sample_weighing_factor.shape[0] > 1:
                 raise ValueError(
