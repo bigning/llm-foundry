@@ -764,7 +764,7 @@ class MPTModel(MPTPreTrainedModel):
         use_cache: Optional[bool] = None,
         inputs_embeds: Optional[torch.Tensor] = None,
     ) -> BaseModelOutputWithPast:
-        log.debug(f"bigning debug model inputs: {input_ids[0].tolist()=}, {attention_mask[0].tolist()=}, {sequence_id[0].tolist()=}")
+        log.debug(f"bigning debug model inputs: {input_ids[0].tolist()[:1000]=}, {attention_mask[0].tolist()[:1000]=}, {sequence_id[0].tolist()[:1000]=}")
         return_dict = (
             return_dict if return_dict is not None else self.config.return_dict
         )
@@ -912,6 +912,7 @@ class MPTModel(MPTPreTrainedModel):
             attn_impl=self.attn_impl,
             attention_mask=attention_mask,
         )
+        log.debug(f"bigning debug {attention_mask_in_length[0].tolist[:20]=}")
 
         alibi_slopes = None  # alibi_slopes will only be used by flash attention for ALiBi
         if self.alibi and self.attn_impl == 'flash':
@@ -1345,7 +1346,7 @@ def compute_loss_from_logits(
     else:
         num_tokens = (targets != loss_fn.ignore_index).sum()
         loss = losses.sum() / num_tokens 
-        log.debug(f"bigning debug num tokens: {num_tokens}, {sample_weighing_factor=}, {loss=}, {labels[0].tolist()=}")
+        log.debug(f"bigning debug num tokens: {num_tokens}, {sample_weighing_factor=}, {loss=}, {labels[0].tolist()[:1000]=}")
         if sample_weighing_factor is not None:
             if sample_weighing_factor.shape[0] > 1:
                 raise ValueError(
