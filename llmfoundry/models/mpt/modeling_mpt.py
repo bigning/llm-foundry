@@ -912,7 +912,7 @@ class MPTModel(MPTPreTrainedModel):
             attn_impl=self.attn_impl,
             attention_mask=attention_mask,
         )
-        log.debug(f"bigning debug {attention_mask_in_length[0].tolist[:20]=}")
+        log.debug(f"bigning debug {attention_mask_in_length[0].tolist()[:50]=}")
 
         alibi_slopes = None  # alibi_slopes will only be used by flash attention for ALiBi
         if self.alibi and self.attn_impl == 'flash':
