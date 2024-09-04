@@ -960,6 +960,8 @@ class DatasetConstructor:
                 return mapping_fn(example, tokenizer)
 
             detected_cpu_count = os.cpu_count() or 1
+            log.info(f"bigning debug detected cpu count = {detected_cpu_count}")
+            print(f"bigning debug detected cpu count = {detected_cpu_count}")
             detected_cpus_with_margin = detected_cpu_count - 8
             num_cpus_to_use = max(1, detected_cpus_with_margin)
             if len(dataset) < num_cpus_to_use:
